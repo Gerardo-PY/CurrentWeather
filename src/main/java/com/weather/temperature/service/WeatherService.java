@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -25,7 +26,16 @@ public class WeatherService {
             if (stationNode.isMissingNode() || stationNode.path("ultima_observacion").path("temperatura_aire").isMissingNode()) {
                 return null;
             }
-            String valor = stationNode.path("ultima_observacion").path("temperatura_aire").path("valor").asText() + "°";
+            //String valor = stationNode.path("ultima_observacion").path("temperatura_aire").path("valor").asText() + "°";
+            double temperaturaAire = stationNode.path("ultima_observacion").path("temperatura_aire").path("valor").asDouble();
+            //String valor = String.format(Locale.US,"%.1f", temperaturaAire) + "°";
+            String valor;
+
+            if (temperaturaAire % 1 == 0) {
+                valor = String.format(Locale.US, "%.0f", temperaturaAire) + "°";
+            } else {
+                valor = String.format(Locale.US, "%.1f", temperaturaAire) + "°";
+            }
 
             Temperature temperature = new Temperature(valor);
             temperatureCache.put(codigo, temperature);
